@@ -1,0 +1,36 @@
+name: diag
+on:
+  push:
+    branches: [diag]
+jobs:
+  win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - shell: bash
+        run: |
+          pip install -q bless
+          python - <<'PY'
+          import importlib.util, os, traceback
+          try:
+              import bless
+          except Exception:
+              traceback.print_exc()
+          spec = importlib.util.find_spec("bless")
+          root = os.path.dirname(spec.origin)
+          for dp, dn, fn in os.walk(root):
+              for f in fn:
+                  if f.endswith(".py"):
+                      p = os.path.join(dp, f)
+                      src = open(p, encoding="utf-8").read()
+                      if "winrt" in src:
+                          print("=" * 20, os.path.relpath(p, root))
+                          for i, line in enumerate(src.splitlines()):
+                              if "import" in line or "winrt" in line:
+                                  print(i + 1, line)
+          PY
+          pip download -q --no-deps "bless==0.2.6" -d dl || true
+          pip index versions bless || true
+          pip index versions bleak-winrt || true
