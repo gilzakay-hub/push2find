@@ -4,33 +4,20 @@ on:
     branches: [diag]
 jobs:
   win:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {py: "3.12", pkgs: "bless==0.3.0"}
+          - {py: "3.13", pkgs: "bless==0.3.0"}
+          - {py: "3.11", pkgs: "bleak==0.21.1 bleak-winrt==1.2.0 && pip install --no-deps bless==0.2.6"}
     runs-on: windows-latest
     steps:
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.py }}
       - shell: bash
         run: |
-          pip install -q bless
-          python - <<'PY'
-          import importlib.util, os, traceback
-          try:
-              import bless
-          except Exception:
-              traceback.print_exc()
-          spec = importlib.util.find_spec("bless")
-          root = os.path.dirname(spec.origin)
-          for dp, dn, fn in os.walk(root):
-              for f in fn:
-                  if f.endswith(".py"):
-                      p = os.path.join(dp, f)
-                      src = open(p, encoding="utf-8").read()
-                      if "winrt" in src:
-                          print("=" * 20, os.path.relpath(p, root))
-                          for i, line in enumerate(src.splitlines()):
-                              if "import" in line or "winrt" in line:
-                                  print(i + 1, line)
-          PY
-          pip download -q --no-deps "bless==0.2.6" -d dl || true
-          pip index versions bless || true
-          pip index versions bleak-winrt || true
+          pip install ${{ matrix.pkgs }} 2>&1 | tail -15
+          pip list | grep -iE "bless|bleak|winrt"
+          python -c "import bless, sys; from bless import BlessServer, GATTCharacteristicProperties, GATTAttributePermissions; print('IMPORT_OK', sys.version)"
