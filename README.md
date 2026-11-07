@@ -53,7 +53,7 @@ open Push2find.xcodeproj
 
 ## בדיקה בלי הצמיד
 
-**הדרך הקלה: המחשב כצמיד.** בתיקייה `simulator/` יש סקריפט שהופך את המחשב לצמיד עם כפתור על המסך (`pip install bless && python wristband_sim.py`). הפרטים ב-`simulator/README.md`.
+**הדרך הקלה: המחשב כצמיד.** בתיקייה `simulator/` יש סקריפט שהופך את המחשב לצמיד עם כפתור על המסך (ראו `simulator/README.md`). הפרטים ב-`simulator/README.md`.
 
 **חלופה: טלפון שני.**
 

@@ -5,12 +5,13 @@
 ## התקנה והרצה
 
 ```bash
-pip install bless
+pip install -r requirements.txt
+pip install --no-deps bless==0.2.6
 python wristband_sim.py          # חלון עם כפתור גדול
 python wristband_sim.py --cli    # טרמינל בלבד (Enter = לחיצה)
 ```
 
-עובד על Windows 10/11, macOS ו-Linux. דורש Python 3.9 ומעלה.
+הדרך הפשוטה: להוריד את הגרסה הארוזה מדף ה-Releases ב-GitHub. בהרצה מהקוד צריך Python 3.11 או 3.12, כי הגרסאות החדשות של ספריית ה-Bluetooth לא עובדות עם bless.
 
 | מערכת | הערות |
 |---|---|

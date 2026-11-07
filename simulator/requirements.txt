@@ -1,1 +1,7 @@
-bless>=0.2.6
+# bless 0.2.6 only works with the older bleak 0.21 stack (newer bleak dropped bleak-winrt).
+# Python 3.11 or 3.12. Install with:
+#   pip install -r requirements.txt
+#   pip install --no-deps bless==0.2.6
+bleak==0.21.1
+bleak-winrt==1.2.0; sys_platform == "win32"
+pywin32; sys_platform == "win32"

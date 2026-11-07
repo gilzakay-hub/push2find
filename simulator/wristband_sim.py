@@ -6,7 +6,7 @@ Turns this computer into a Push2find wristband over Bluetooth Low Energy, using
 the protocol in PROTOCOL.md. The phone app pairs with it exactly as it would with
 the real band.
 
-    pip install bless
+    pip install -r requirements.txt && pip install --no-deps bless==0.2.6
     python wristband_sim.py          # window with a big button
     python wristband_sim.py --cli    # terminal only
 
@@ -21,14 +21,52 @@ import sys
 import threading
 import time
 
+import traceback
+
+FROZEN = getattr(sys, "frozen", False)  # running as the packaged .exe / .app
+
+
+def fatal(message: str):
+    """Report a startup error. A packaged windowed app has no console, so show a dialog."""
+    if sys.stderr:
+        print(message, file=sys.stderr)
+    try:
+        import tkinter as tk
+        from tkinter import messagebox
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror("Push2find simulator", message)
+        root.destroy()
+    except Exception:
+        pass
+    sys.exit(1)
+
+
+def selftest_path():
+    """`--selftest FILE`: used by CI to check the packaged app starts and imports its BLE stack."""
+    if "--selftest" in sys.argv:
+        i = sys.argv.index("--selftest")
+        return sys.argv[i + 1] if i + 1 < len(sys.argv) else "selftest.txt"
+    return None
+
+
 try:
     from bless import (
         BlessServer,
         GATTAttributePermissions,
         GATTCharacteristicProperties,
     )
-except ImportError:
-    sys.exit("Missing dependency. Run:  pip install bless")
+except Exception:
+    err = traceback.format_exc()
+    if selftest_path():
+        open(selftest_path(), "w").write("FAIL\n" + err)
+        sys.exit(1)
+    fatal("Could not load the Bluetooth library.\n\n" + err[-1500:]
+          + ("" if FROZEN else "\nSee simulator/README.md for install instructions."))
+
+if selftest_path():
+    open(selftest_path(), "w").write("OK\n")
+    sys.exit(0)
 
 # ---- protocol (keep in sync with PROTOCOL.md / P2FProtocol.kt / P2FProtocol.swift)
 SERVICE = "7a1e0001-5c3d-4b8e-9f2a-1d6c0b7e9a10"

@@ -39,14 +39,30 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - name: Install
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install -r simulator/requirements.txt pyinstaller
+          pip install --no-deps bless==0.2.6
           pip list
+          python simulator/wristband_sim.py --selftest st.txt; cat st.txt
       - name: Build
         run: python simulator/build/build.py
+      - name: Smoke-test packaged app (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Start-Process -FilePath simulator\dist\Push2find-Simulator.exe -ArgumentList '--selftest', "$PWD\st-exe.txt" -Wait
+          Get-Content st-exe.txt
+          if ((Get-Content st-exe.txt -First 1) -ne 'OK') { exit 1 }
+      - name: Smoke-test packaged app (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          simulator/dist/Push2find-Simulator.app/Contents/MacOS/Push2find-Simulator --selftest "$PWD/st-app.txt" || true
+          cat st-app.txt
+          test "$(head -1 st-app.txt)" = OK
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: bash
