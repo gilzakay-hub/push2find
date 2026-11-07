@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+simulator/dist/
+simulator/build/out/
+*.zip

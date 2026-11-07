@@ -1,0 +1,86 @@
+name: Build & release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Build APK
+        working-directory: android
+        run: gradle assembleDebug --stacktrace
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Push2find.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: Push2find.apk
+
+  simulator:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r simulator/requirements.txt pyinstaller
+          pip list
+      - name: Build
+        run: python simulator/build/build.py
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: cp simulator/dist/Push2find-Simulator.exe Push2find-Simulator-Windows.exe
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          APP=simulator/dist/Push2find-Simulator.app
+          /usr/libexec/PlistBuddy -c "Add :NSBluetoothAlwaysUsageDescription string 'The simulator acts as a Push2find wristband over Bluetooth.'" "$APP/Contents/Info.plist"
+          codesign --force --deep --sign - "$APP"
+          ditto -c -k --keepParent "$APP" Push2find-Simulator-Mac.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulator-${{ runner.os }}
+          path: |
+            Push2find-Simulator-Windows.exe
+            Push2find-Simulator-Mac.zip
+          if-no-files-found: error
+
+  release:
+    needs: [android, simulator]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la out
+          gh release create "build-${{ github.run_number }}" out/* \
+            --repo "${{ github.repository }}" \
+            --title "Push2find build ${{ github.run_number }}" \
+            --notes "Phone: Push2find.apk · Computer: Push2find-Simulator-Windows.exe / Push2find-Simulator-Mac.zip" \
+            --latest

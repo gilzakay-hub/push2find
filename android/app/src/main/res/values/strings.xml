@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Push2find</string>
+    <string name="channel_status">Wristband connection</string>
+    <string name="channel_alarm">Find-my-phone alarm</string>
+    <string name="alarm_title">Your wristband is looking for this phone</string>
+    <string name="alarm_text">Tap Stop, or press the wristband button again.</string>
+    <string name="action_stop">Stop</string>
+</resources>

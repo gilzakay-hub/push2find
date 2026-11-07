@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Lets the alarm notification break through Focus / notification summary. No Apple approval needed. -->
+	<key>com.apple.developer.usernotifications.time-sensitive</key>
+	<true/>
+	<!--
+	Critical Alerts: plays the notification sound at full volume even when the phone
+	is muted or in Do Not Disturb. Requires approval from Apple:
+	https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
+	After approval, uncomment the two lines below AND set AppConfig.criticalAlertsEnabled = true.
+
+	<key>com.apple.developer.usernotifications.critical-alerts</key>
+	<true/>
+	-->
+</dict>
+</plist>
