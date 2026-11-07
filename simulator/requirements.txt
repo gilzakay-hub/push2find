@@ -5,3 +5,4 @@
 bleak==0.21.1
 bleak-winrt==1.2.0; sys_platform == "win32"
 pywin32; sys_platform == "win32"
+pysetupdi @ git+https://github.com/gwangyi/pysetupdi@master ; sys_platform == "win32"

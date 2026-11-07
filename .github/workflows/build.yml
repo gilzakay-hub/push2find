@@ -46,6 +46,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r simulator/requirements.txt pyinstaller
           pip install --no-deps bless==0.2.6
+          python -c "import importlib.metadata as m; print(*m.requires('bless'), sep='\n')"
           pip list
           python simulator/wristband_sim.py --selftest st.txt || true
           cat st.txt
