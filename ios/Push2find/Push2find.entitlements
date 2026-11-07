@@ -2,17 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Lets the alarm notification break through Focus / notification summary. No Apple approval needed. -->
-	<key>com.apple.developer.usernotifications.time-sensitive</key>
-	<true/>
 	<!--
-	Critical Alerts: plays the notification sound at full volume even when the phone
-	is muted or in Do Not Disturb. Requires approval from Apple:
-	https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
-	After approval, uncomment the two lines below AND set AppConfig.criticalAlertsEnabled = true.
+	Phase 1: intentionally empty so the app can be signed with any Apple ID,
+	including a free one (Xcode personal team / Sideloadly).
 
-	<key>com.apple.developer.usernotifications.critical-alerts</key>
-	<true/>
+	Phase 2 (paid Apple Developer account), add:
+	  <key>com.apple.developer.usernotifications.time-sensitive</key><true/>
+	Phase 3 (after Apple approves Critical Alerts), also add:
+	  <key>com.apple.developer.usernotifications.critical-alerts</key><true/>
+	and set AppConfig.criticalAlertsEnabled = true.
 	-->
 </dict>
 </plist>
