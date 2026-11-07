@@ -47,7 +47,9 @@ jobs:
           pip install -r simulator/requirements.txt pyinstaller
           pip install --no-deps bless==0.2.6
           pip list
-          python simulator/wristband_sim.py --selftest st.txt; cat st.txt
+          python simulator/wristband_sim.py --selftest st.txt || true
+          cat st.txt
+          test "$(head -1 st.txt)" = OK
       - name: Build
         run: python simulator/build/build.py
       - name: Smoke-test packaged app (Windows)
