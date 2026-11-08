@@ -2,6 +2,10 @@
 
 אפליקציה לאנדרואיד ול-iOS: לחיצה על הכפתור בצמיד ← הטלפון מצלצל בקול רם, גם במצב שקט, עם מסך נעול וכשהאפליקציה סגורה.
 
+<p>
+<img src="docs/screenshots/1_home_connected.png" width="200"> <img src="docs/screenshots/3_home_ringing.png" width="200"> <img src="docs/screenshots/7_alarm.png" width="200"> <img src="docs/screenshots/6_settings.png" width="200">
+</p>
+
 ```
 Push2find/
 ├── PROTOCOL.md      ← הצעת פרוטוקול BLE לצוות החומרה (UUIDs, פורמט הודעות, פרמטרים)

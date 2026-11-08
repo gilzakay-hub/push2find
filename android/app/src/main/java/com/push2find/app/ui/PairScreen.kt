@@ -127,7 +127,7 @@ fun PairContent(
                         titleColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     else -> sorted.forEachIndexed { i, d ->
-                        if (i > 0) GroupDivider()
+                        if (i > 0) GroupDivider(inset = 68.dp)
                         RowItem(
                             title = d.name ?: "Unnamed device",
                             subtitle = if (d.isPush2find) "Push2find wristband" else d.address,

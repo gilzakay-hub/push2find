@@ -157,7 +157,7 @@ fun HomeContent(
             Overline("Needs attention", Modifier.padding(start = 6.dp, bottom = 8.dp))
             P2FCard(padding = 0.dp) {
                 warnings.forEachIndexed { i, w ->
-                    if (i > 0) GroupDivider()
+                    if (i > 0) GroupDivider(inset = 68.dp)
                     RowItem(
                         title = w.title, subtitle = w.body, onClick = w.onFix,
                         leading = { IconBadge(Icons.Filled.Warning, Searching) },
