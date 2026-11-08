@@ -106,6 +106,7 @@ object Alarm {
         player?.start()
 
         if (prefs.vibrate) vibrator().vibrate(VibrationEffect.createWaveform(longArrayOf(0, 700, 300), 0), attrs)
+        if (prefs.flash) Torch.start(app)
 
         AppState.ringing.value = true
         if (prefs.durationSec > 0) handler.postDelayed(autoStop, prefs.durationSec * 1000L)
@@ -117,6 +118,7 @@ object Alarm {
         player?.let { p -> runCatching { p.stop() }; p.release() }
         player = null
         runCatching { vibrator().cancel() }
+        Torch.stop()
 
         val audio = app.getSystemService(AudioManager::class.java)
         focus?.let { audio.abandonAudioFocusRequest(it) }

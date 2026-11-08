@@ -2,27 +2,31 @@ package com.push2find.app.ui
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,17 +35,20 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.push2find.app.ble.BleScanner
 import com.push2find.app.ble.FoundDevice
 import com.push2find.app.ui.theme.Connected
-import com.push2find.app.ui.theme.Muted
 import com.push2find.app.ui.theme.Signal
 
 @Composable
@@ -63,86 +70,159 @@ fun PairScreen(onBack: (() -> Unit)?, onPaired: (address: String, name: String) 
         onDispose { scanner.stop() }
     }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background, topBar = { P2FTopBar("Pair wristband", onBack) }) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize().padding(horizontal = 20.dp)) {
-            Text(
-                "Hold the wristband button for 3 seconds until the light blinks, then tap it in the list.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(20.dp))
+    PairContent(
+        devices = devices.values.toList(),
+        bluetoothOn = btOn,
+        error = error,
+        showAll = showAll,
+        onShowAllChange = { showAll = it },
+        onTurnOnBluetooth = { context.tryStart(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)) },
+        onBack = onBack,
+        onPick = { d ->
+            scanner.stop()
+            onPaired(d.address, d.name ?: "Push2find wristband")
+        }
+    )
+}
 
-            if (!btOn) {
-                Button(
-                    onClick = { context.tryStart(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)) },
-                    modifier = Modifier.fillMaxWidth().height(52.dp)
-                ) { Text("Turn on Bluetooth") }
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = Signal)
-                    Spacer(Modifier.width(10.dp))
-                    Text("Looking for wristbands nearby…", style = MaterialTheme.typography.titleSmall)
-                }
-            }
-            error?.let {
-                Spacer(Modifier.height(8.dp))
-                Text(it, color = MaterialTheme.colorScheme.error)
-            }
-            Spacer(Modifier.height(16.dp))
+@Composable
+fun PairContent(
+    devices: List<FoundDevice>,
+    bluetoothOn: Boolean,
+    error: String?,
+    showAll: Boolean,
+    onShowAllChange: (Boolean) -> Unit,
+    onTurnOnBluetooth: () -> Unit,
+    onBack: (() -> Unit)?,
+    onPick: (FoundDevice) -> Unit,
+) {
+    val sorted = devices.sortedWith(compareByDescending<FoundDevice> { it.isPush2find }.thenByDescending { it.rssi })
 
-            val sorted = devices.values.sortedWith(compareByDescending<FoundDevice> { it.isPush2find }.thenByDescending { it.rssi })
-            LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(sorted, key = { it.address }) { d ->
-                    DeviceRow(d) {
-                        scanner.stop()
-                        onPaired(d.address, d.name ?: "Push2find wristband")
+    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+        P2FTopBar(if (onBack == null) "" else "Pair wristband", onBack)
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)
+        ) {
+            Box(Modifier.fillMaxWidth().height(170.dp), contentAlignment = Alignment.Center) { HoldIllustration() }
+            Text("Pair your wristband", style = MaterialTheme.typography.displaySmall.copy(fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.15f))
+            Spacer(Modifier.height(18.dp))
+            Step(1, "Hold the button for 3 seconds", "until the light on the band blinks.")
+            Spacer(Modifier.height(12.dp))
+            Step(2, "Tap your wristband below", "It's usually the one at the top.")
+            Spacer(Modifier.height(28.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)) {
+                Overline("Nearby", Modifier.weight(1f))
+                if (bluetoothOn) ScanningDots()
+            }
+            P2FCard(padding = 0.dp) {
+                when {
+                    !bluetoothOn -> RowItem(
+                        "Bluetooth is off", subtitle = "Turn it on to look for your wristband",
+                        onClick = onTurnOnBluetooth, trailing = { Chevron() }
+                    )
+                    sorted.isEmpty() -> RowItem(
+                        "Looking for wristbands…",
+                        subtitle = error ?: "Keep the band close to the phone",
+                        titleColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    else -> sorted.forEachIndexed { i, d ->
+                        if (i > 0) GroupDivider()
+                        RowItem(
+                            title = d.name ?: "Unnamed device",
+                            subtitle = if (d.isPush2find) "Push2find wristband" else d.address,
+                            onClick = { onPick(d) },
+                            leading = { DeviceMark(d.isPush2find) },
+                            trailing = { SignalBars(d.rssi) }
+                        )
                     }
                 }
             }
-
-            Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Show all Bluetooth devices", style = MaterialTheme.typography.bodyMedium)
-                    Text("For testing with a prototype", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Switch(checked = showAll, onCheckedChange = { showAll = it })
+            if (error != null && sorted.isNotEmpty()) {
+                Text(error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(start = 6.dp, top = 8.dp))
             }
+            Spacer(Modifier.height(20.dp))
+            P2FCard(padding = 0.dp) {
+                SwitchRow("Show all Bluetooth devices", showAll, onShowAllChange, subtitle = "For testing with a prototype")
+            }
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-private fun DeviceRow(d: FoundDevice, onClick: () -> Unit) {
-    Card(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(d.name ?: "Unnamed device", fontWeight = FontWeight.SemiBold)
-                Text(d.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            SignalBars(d.rssi)
+private fun Step(n: Int, title: String, body: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            Modifier.size(28.dp).background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)),
+            contentAlignment = Alignment.Center
+        ) { Text("$n", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold) }
+        Spacer(Modifier.width(14.dp))
+        Column {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+/** A wristband seen from above, its button pulsing as if held down. */
+@Composable
+private fun HoldIllustration() {
+    val t = rememberInfiniteTransition(label = "hold")
+    val p by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "p")
+    val strap = MaterialTheme.colorScheme.onSurface
+    val face = MaterialTheme.colorScheme.surface
+    Canvas(Modifier.size(width = 260.dp, height = 150.dp)) {
+        val c = Offset(size.width / 2, size.height / 2)
+        val strapH = size.height * 0.34f
+        drawRoundRect(strap, Offset(0f, c.y - strapH / 2), Size(size.width, strapH), CornerRadius(strapH / 2))
+        val faceR = size.height * 0.40f
+        drawCircle(strap, faceR + 6.dp.toPx(), c)
+        drawCircle(face, faceR, c)
+        val btn = faceR * 0.46f
+        // ripple
+        drawCircle(Signal.copy(alpha = 0.35f * (1f - p)), btn + faceR * 0.5f * p, c, style = Stroke(3.dp.toPx()))
+        drawCircle(Signal, btn, c)
+    }
+}
+
+@Composable
+private fun ScanningDots() {
+    val t = rememberInfiniteTransition(label = "scan")
+    val p by t.animateFloat(0f, 3f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Restart), label = "p")
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(end = 6.dp)) {
+        for (i in 0..2) {
+            val on = p.toInt() == i
+            Box(Modifier.size(6.dp).clip(RoundedCornerShape(50)).background(if (on) Signal else Signal.copy(alpha = 0.25f)))
+        }
+    }
+}
+
+@Composable
+private fun DeviceMark(isPush2find: Boolean) {
+    val line = MaterialTheme.colorScheme.outline
+    Canvas(Modifier.size(36.dp)) {
+        drawCircle(if (isPush2find) Signal.copy(alpha = 0.14f) else line.copy(alpha = 0.5f))
+        drawCircle(if (isPush2find) Signal else Color.Gray, radius = size.minDimension * 0.16f)
     }
 }
 
 /** Four bars: helps the user pick the band that is right next to them. */
 @Composable
-private fun SignalBars(rssi: Int) {
+fun SignalBars(rssi: Int) {
     val bars = when {
         rssi >= -55 -> 4
         rssi >= -67 -> 3
         rssi >= -80 -> 2
         else -> 1
     }
+    val off = MaterialTheme.colorScheme.outline
     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         for (i in 1..4) {
-            Spacer(
+            Box(
                 Modifier.width(5.dp).height((6 + i * 4).dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(if (i <= bars) Connected else Muted.copy(alpha = 0.3f))
+                    .background(if (i <= bars) Connected else off)
             )
         }
     }

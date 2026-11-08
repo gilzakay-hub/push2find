@@ -10,14 +10,17 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,14 +35,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.push2find.app.data.AppState
 import com.push2find.app.data.Permissions
 import com.push2find.app.data.Prefs
 import com.push2find.app.service.FinderService
 import com.push2find.app.ui.theme.Push2FindTheme
+import com.push2find.app.ui.theme.Signal
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,22 +121,28 @@ private fun App() {
 }
 
 @Composable
-private fun PermissionScreen(onRequest: () -> Unit, onOpenSettings: () -> Unit) {
+fun PermissionScreen(onRequest: () -> Unit, onOpenSettings: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(horizontal = 24.dp),
     ) {
-        Text("Push2find", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
+            Wordmark()
+        }
+        Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+            Beacon(color = Signal, animated = true, modifier = Modifier.fillMaxWidth(0.7f).aspectRatio(1f))
+        }
+        Text("Never lose\nyour phone again", style = MaterialTheme.typography.displaySmall)
+        Spacer(Modifier.height(14.dp))
         Text(
-            "To hear your wristband, Push2find needs Bluetooth access (“Nearby devices”). " +
-                "Notifications let you stop the ring from the lock screen.",
-            textAlign = TextAlign.Center,
+            "Push2find listens for your wristband over Bluetooth (“Nearby devices”). " +
+                "Notifications put a Stop button on your lock screen.",
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(32.dp))
-        Button(onClick = onRequest, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("Allow access") }
-        TextButton(onClick = onOpenSettings) { Text("Open app settings") }
+        Spacer(Modifier.height(28.dp))
+        PrimaryButton("Allow access", onRequest)
+        TextButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            Text("Open app settings", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }

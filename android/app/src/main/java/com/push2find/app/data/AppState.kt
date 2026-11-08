@@ -51,6 +51,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(K_VIBRATE, true)
         set(v) = sp.edit { putBoolean(K_VIBRATE, v) }
 
+    /** Blink the camera flash while ringing. */
+    var flash: Boolean
+        get() = sp.getBoolean(K_FLASH, true)
+        set(v) = sp.edit { putBoolean(K_FLASH, v) }
+
     fun clearDevice() = sp.edit {
         remove(K_ADDRESS)
         remove(K_NAME)
@@ -62,6 +67,7 @@ class Prefs(context: Context) {
         const val K_SOUND = "sound"
         const val K_DURATION = "duration_sec"
         const val K_VIBRATE = "vibrate"
+        const val K_FLASH = "flash"
     }
 }
 
