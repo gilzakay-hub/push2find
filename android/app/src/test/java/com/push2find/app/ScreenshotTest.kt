@@ -27,7 +27,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** Renders each screen to build/screenshots/*.png (run: gradle recordRoborazziDebug). */
+/** Renders each screen as a PNG under build/screenshots (run: gradle recordRoborazziDebug). */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [33], qualifiers = "w400dp-h880dp-xxhdpi")
