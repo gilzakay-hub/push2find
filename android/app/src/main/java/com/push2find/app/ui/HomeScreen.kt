@@ -66,7 +66,7 @@ fun HomeScreen(prefs: Prefs, onOpenSettings: () -> Unit) {
     val btOn = rememberBluetoothEnabled()
 
     HomeContent(
-        deviceName = prefs.deviceName ?: "Wristband",
+        deviceName = prefs.deviceName ?: "Device",
         state = if (!btOn) LinkState.BLUETOOTH_OFF else link,
         ringing = ringing,
         battery = battery,
@@ -114,7 +114,7 @@ fun HomeContent(
                 modifier = Modifier.fillMaxWidth(0.82f).aspectRatio(1f)
             )
         }
-        Overline("Wristband · $deviceName", Modifier.padding(start = 4.dp))
+        Overline("Device · $deviceName", Modifier.padding(start = 4.dp))
         Spacer(Modifier.height(6.dp))
         Text(look.title, style = MaterialTheme.typography.displaySmall, modifier = Modifier.padding(start = 2.dp))
         Spacer(Modifier.height(6.dp))
@@ -173,12 +173,12 @@ fun HomeContent(
 private data class StatusLook(val title: String, val subtitle: String, val color: Color, val animated: Boolean)
 
 private fun statusLook(state: LinkState, ringing: Boolean): StatusLook = when {
-    ringing -> StatusLook("Ringing", "Press the wristband again or tap Stop", Signal, true)
-    state == LinkState.CONNECTED -> StatusLook("Connected", "Press the wristband button to ring this phone", Connected, true)
-    state == LinkState.CONNECTING -> StatusLook("Connecting", "Talking to your wristband…", Searching, true)
+    ringing -> StatusLook("Ringing", "Press the device again or tap Stop", Signal, true)
+    state == LinkState.CONNECTED -> StatusLook("Connected", "Press the device button to ring this phone", Connected, true)
+    state == LinkState.CONNECTING -> StatusLook("Connecting", "Talking to your device…", Searching, true)
     state == LinkState.SEARCHING -> StatusLook("Searching", "Out of range – reconnects automatically", Searching, true)
     state == LinkState.BLUETOOTH_OFF -> StatusLook("Bluetooth off", "Turn on Bluetooth to connect", Muted, false)
-    else -> StatusLook("Not paired", "Pair a wristband to get started", Muted, false)
+    else -> StatusLook("Not paired", "Pair a device to get started", Muted, false)
 }
 
 @SuppressLint("BatteryLife")
@@ -197,7 +197,7 @@ private fun rememberSetupWarnings(btOn: Boolean): List<SetupWarning> {
     }
 
     return buildList {
-        if (!btOn) add(SetupWarning("Turn on Bluetooth", "The wristband can't reach this phone while it's off.") {
+        if (!btOn) add(SetupWarning("Turn on Bluetooth", "The device can't reach this phone while it's off.") {
             context.tryStart(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
         })
         if (!batteryOk) add(SetupWarning("Allow background use", "Otherwise the phone may stop Push2find while locked.") {

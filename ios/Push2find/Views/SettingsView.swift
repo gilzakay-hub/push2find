@@ -43,18 +43,18 @@ struct SettingsView: View {
                 Text("The ring plays even with the Silent switch on. Its loudness follows the phone's media volume.")
             }
 
-            Section("Wristband") {
+            Section("Device") {
                 LabeledContent("Name", value: settings.pairedName ?? "—")
                 LabeledContent("Status", value: ble.linkState == .connected ? "Connected" : "Not connected")
                 LabeledContent("Battery", value: ble.battery.map { "\($0)%" } ?? "—")
                 Button("Identify (blink)") { ble.identify() }
                     .disabled(ble.linkState != .connected)
-                NavigationLink("Pair another wristband") { PairingView() }
-                Button("Forget this wristband", role: .destructive) { confirmForget = true }
+                NavigationLink("Pair another device") { PairingView() }
+                Button("Forget this device", role: .destructive) { confirmForget = true }
             }
         }
         .navigationTitle("Settings")
-        .confirmationDialog("Forget this wristband?", isPresented: $confirmForget, titleVisibility: .visible) {
+        .confirmationDialog("Forget this device?", isPresented: $confirmForget, titleVisibility: .visible) {
             Button("Forget", role: .destructive) { ble.forget() }
         }
     }

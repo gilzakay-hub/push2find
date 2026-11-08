@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 // Brand
-val Signal = Color(0xFFFF5B1F)      // the wristband button
+val Signal = Color(0xFFFF5B1F)      // the device button
 val SignalDeep = Color(0xFFE2470F)
 val Connected = Color(0xFF17A35B)
 val Searching = Color(0xFFEFA21B)
@@ -53,7 +53,7 @@ private val P2FTypography = Typography(
     bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 20.sp),
     bodySmall = TextStyle(fontSize = 12.sp, lineHeight = 16.sp),
     labelLarge = TextStyle(fontSize = 16.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
-    // Used for small uppercase overlines ("BATTERY", "WRISTBAND")
+    // Used for small uppercase overlines ("BATTERY", "DEVICE")
     labelSmall = TextStyle(fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.4.sp),
 )
 

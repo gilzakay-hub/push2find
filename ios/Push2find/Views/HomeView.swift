@@ -29,7 +29,7 @@ struct HomeView: View {
                     .padding(.top, 12)
 
                 VStack(spacing: 4) {
-                    Text(settings.pairedName ?? "Wristband").font(.headline)
+                    Text(settings.pairedName ?? "Device").font(.headline)
                     Text(subtitle).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 }
 
@@ -62,7 +62,7 @@ struct HomeView: View {
                 }
 
                 HintCard(title: "Keep Push2find in the app switcher",
-                         text: "If you swipe the app away, iOS stops it from listening for the wristband until you open it again. Closing it normally (going to the home screen) is fine.",
+                         text: "If you swipe the app away, iOS stops it from listening for the device until you open it again. Closing it normally (going to the home screen) is fine.",
                          action: nil, onAction: nil)
             }
             .padding(.horizontal, 20)
@@ -89,12 +89,12 @@ struct HomeView: View {
 
     private var subtitle: String {
         switch ble.linkState {
-        case .connected: return "Press the wristband button to ring this phone"
+        case .connected: return "Press the device button to ring this phone"
         case .connecting: return "Connecting…"
         case .searching: return "Out of range – will reconnect automatically"
         case .bluetoothOff: return "Turn on Bluetooth to connect"
         case .unauthorized: return "Allow Bluetooth for Push2find in Settings"
-        case .notPaired: return "No wristband paired"
+        case .notPaired: return "No device paired"
         }
     }
 }
@@ -160,7 +160,7 @@ struct BatteryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Wristband battery")
+                Text("Device battery")
                 Spacer()
                 Text(level.map { "\($0)%" } ?? "—").font(.headline)
             }

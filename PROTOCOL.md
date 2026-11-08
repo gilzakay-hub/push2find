@@ -1,4 +1,4 @@
-# Push2find – Wristband BLE Protocol (proposal v0.1)
+# Push2find – Device BLE Protocol (proposal v0.1)
 
 This is the protocol the Push2find apps (Android + iOS) implement today.
 It is a **proposal for the hardware team** — every UUID and value lives in one
@@ -11,11 +11,11 @@ place in each app, so changes are cheap:
 
 | Role | Device |
 |---|---|
-| Peripheral / GATT server | Wristband |
+| Peripheral / GATT server | Device |
 | Central / GATT client | Phone |
 
-One wristband ↔ one phone. The phone keeps a persistent connection whenever
-the band is in range.
+One device ↔ one phone. The phone keeps a persistent connection whenever
+the device is in range.
 
 ## 2. Advertising
 
@@ -46,7 +46,7 @@ the band is in range.
 Phone behaviour (v1): **any** event while the phone is silent → start ringing;
 **any** event while the phone is ringing → stop ringing.
 
-**Control commands (phone → band)**
+**Control commands (phone → device)**
 
 | Command | Meaning |
 |---|---|
@@ -70,14 +70,14 @@ Model Number `0x2A24`, Firmware Revision `0x2A26`, Manufacturer `0x2A29`.
 | Parameter | Value | Why |
 |---|---|---|
 | Connection interval | 30–50 ms requested; accept what the phone grants | button notification reaches the phone in < 100 ms |
-| Peripheral latency | 4–8 | band can skip events when idle → lower power |
+| Peripheral latency | 4–8 | device can skip events when idle → lower power |
 | Supervision timeout | 4–6 s | |
 
 Expected end-to-end latency (press → sound) when connected: **< 0.5 s**.
 
 ## 5. Press while disconnected
 
-If the button is pressed while there is no connection, the band should:
+If the button is pressed while there is no connection, the device should:
 1. switch to fast advertising (100 ms) for 30 s;
 2. keep the press in a buffer;
 3. on reconnect + CCCD enabled, send the buffered event **only if it is
@@ -86,8 +86,8 @@ If the button is pressed while there is no connection, the band should:
 ## 6. Security / pairing
 
 - v1: no bonding required ("Just Works" is allowed but not needed). The app
-  identifies the band by its address (Android) / peripheral identifier (iOS).
-- If the band requires encryption, use LE Secure Connections, Just Works.
+  identifies the device by its address (Android) / peripheral identifier (iOS).
+- If the device requires encryption, use LE Secure Connections, Just Works.
   The OS shows its own pairing dialog the first time.
 
 ## 7. Open questions for the hardware team
@@ -95,4 +95,4 @@ If the button is pressed while there is no connection, the band should:
 1. Final UUIDs (keep these or replace with your own 128-bit base).
 2. Is there a vibration motor / LED for the Identify command?
 3. Battery notify policy and expected battery life targets.
-4. Will the band support double / long press, or single press only?
+4. Will the device support double / long press, or single press only?

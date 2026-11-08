@@ -134,7 +134,7 @@ fun PermissionScreen(onRequest: () -> Unit, onOpenSettings: () -> Unit) {
         Text("Never lose\nyour phone again", style = MaterialTheme.typography.displaySmall)
         Spacer(Modifier.height(14.dp))
         Text(
-            "Push2find listens for your wristband over Bluetooth (“Nearby devices”). " +
+            "Push2find listens for your device over Bluetooth (“Nearby devices”). " +
                 "Notifications put a Stop button on your lock screen.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant

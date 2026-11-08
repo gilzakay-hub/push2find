@@ -126,7 +126,7 @@ fun SettingsScreen(
 
             // ---------------------------------------------------------------- device
             val connected = link == LinkState.CONNECTED
-            SettingsGroup("Wristband") {
+            SettingsGroup("Device") {
                 RowItem(prefs.deviceName ?: "—", subtitle = prefs.deviceAddress) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         StatusDot(if (connected) Connected else Muted)
@@ -149,14 +149,14 @@ fun SettingsScreen(
                 GroupDivider()
                 RowItem(
                     "Identify",
-                    subtitle = if (connected) "Make the band blink" else "Available when connected",
+                    subtitle = if (connected) "Make the device blink" else "Available when connected",
                     titleColor = if (connected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = if (connected) ({ FinderService.start(context, FinderService.ACTION_IDENTIFY) }) else null,
                 )
                 GroupDivider()
-                RowItem("Pair another wristband", onClick = onPairNew) { Chevron() }
+                RowItem("Pair another device", onClick = onPairNew) { Chevron() }
                 GroupDivider()
-                RowItem("Forget this wristband", titleColor = Danger, onClick = { confirmForget = true })
+                RowItem("Forget this device", titleColor = Danger, onClick = { confirmForget = true })
             }
             Spacer(Modifier.height(28.dp))
         }
@@ -165,7 +165,7 @@ fun SettingsScreen(
     if (confirmForget) {
         AlertDialog(
             onDismissRequest = { confirmForget = false },
-            title = { Text("Forget this wristband?") },
+            title = { Text("Forget this device?") },
             text = { Text("The phone will stop listening to it until you pair again.") },
             confirmButton = {
                 TextButton(onClick = { confirmForget = false; onForget() }) { Text("Forget", color = Danger) }

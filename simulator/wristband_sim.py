@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Push2find wristband simulator.
+Push2find device simulator.
 
-Turns this computer into a Push2find wristband over Bluetooth Low Energy, using
+Turns this computer into a Push2find device over Bluetooth Low Energy, using
 the protocol in PROTOCOL.md. The phone app pairs with it exactly as it would with
-the real band.
+the real device.
 
     pip install -r requirements.txt && pip install --no-deps bless==0.2.6
     python wristband_sim.py          # window with a big button
@@ -130,7 +130,7 @@ class SimulatedBand:
             self._emit("warn", f"Battery service not available on this OS ({e}); battery will show '—' in the app.")
 
         await self.server.start()
-        self._emit("ok", f"Advertising as {DEVICE_NAME}. In the app: Pair wristband → tap it.")
+        self._emit("ok", f"Advertising as {DEVICE_NAME}. In the app: Pair device → tap it.")
 
     # ------------------------------------------------------------ actions (any thread)
 
@@ -177,7 +177,7 @@ class SimulatedBand:
     def _on_write(self, characteristic, value, **kwargs):
         characteristic.value = value
         if str(characteristic.uuid).lower() == CONTROL and value and value[0] == CMD_IDENTIFY:
-            self._emit("identify", "Phone sent IDENTIFY – the band would blink now")
+            self._emit("identify", "Phone sent IDENTIFY – the device would blink now")
         else:
             self._emit("info", f"Write to {characteristic.uuid}: {bytes(value).hex(' ')}")
 
@@ -194,7 +194,7 @@ def run_gui(band: SimulatedBand, events: "queue.Queue[tuple[str, str]]"):
     SIGNAL, SIGNAL_DOWN, GREEN, AMBER = "#FF5B1F", "#C9420F", "#1E9E5A", "#E39B12"
 
     root = tk.Tk()
-    root.title("Push2find – wristband simulator")
+    root.title("Push2find – device simulator")
     root.configure(bg=BG)
     root.minsize(380, 600)
 
@@ -231,7 +231,7 @@ def run_gui(band: SimulatedBand, events: "queue.Queue[tuple[str, str]]"):
 
     bat_frame = tk.Frame(root, bg=BG)
     bat_frame.pack(fill="x", padx=24, pady=(18, 6))
-    tk.Label(bat_frame, text="Wristband battery", bg=BG, fg=INK, font=("Helvetica", 11)).pack(anchor="w")
+    tk.Label(bat_frame, text="Device battery", bg=BG, fg=INK, font=("Helvetica", 11)).pack(anchor="w")
     battery = tk.Scale(bat_frame, from_=0, to=100, orient="horizontal", bg=BG, fg=INK,
                        troughcolor=CARD, highlightthickness=0, sliderrelief="flat", length=300)
     battery.set(band.battery)
@@ -313,7 +313,7 @@ def run_cli(band: SimulatedBand, events: "queue.Queue[tuple[str, str]]"):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Push2find wristband simulator")
+    ap = argparse.ArgumentParser(description="Push2find device simulator")
     ap.add_argument("--cli", action="store_true", help="terminal mode, no window")
     args = ap.parse_args()
 

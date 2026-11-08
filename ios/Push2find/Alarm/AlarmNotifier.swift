@@ -39,8 +39,8 @@ final class AlarmNotifier: NSObject, UNUserNotificationCenterDelegate {
 
     func postAlarm(audioStarted: Bool) {
         let content = UNMutableNotificationContent()
-        content.title = "Your wristband is looking for this phone"
-        content.body = "Tap Stop, or press the wristband button again."
+        content.title = "Your device is looking for this phone"
+        content.body = "Tap Stop, or press the device button again."
         content.categoryIdentifier = Self.categoryID
 
         let file = UNNotificationSoundName(Sounds.option(for: SettingsStore.shared.soundKey).file)

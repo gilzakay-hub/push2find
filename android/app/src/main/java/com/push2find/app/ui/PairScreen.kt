@@ -80,7 +80,7 @@ fun PairScreen(onBack: (() -> Unit)?, onPaired: (address: String, name: String) 
         onBack = onBack,
         onPick = { d ->
             scanner.stop()
-            onPaired(d.address, d.name ?: "Push2find wristband")
+            onPaired(d.address, d.name ?: "Push2find device")
         }
     )
 }
@@ -99,16 +99,16 @@ fun PairContent(
     val sorted = devices.sortedWith(compareByDescending<FoundDevice> { it.isPush2find }.thenByDescending { it.rssi })
 
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-        P2FTopBar(if (onBack == null) "" else "Pair wristband", onBack)
+        P2FTopBar(if (onBack == null) "" else "Pair device", onBack)
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)
         ) {
             Box(Modifier.fillMaxWidth().height(170.dp), contentAlignment = Alignment.Center) { HoldIllustration() }
-            Text("Pair your wristband", style = MaterialTheme.typography.displaySmall.copy(fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.15f))
+            Text("Pair your device", style = MaterialTheme.typography.displaySmall.copy(fontSize = MaterialTheme.typography.headlineSmall.fontSize * 1.15f))
             Spacer(Modifier.height(18.dp))
-            Step(1, "Hold the button for 3 seconds", "until the light on the band blinks.")
+            Step(1, "Hold the button for 3 seconds", "until its light blinks.")
             Spacer(Modifier.height(12.dp))
-            Step(2, "Tap your wristband below", "It's usually the one at the top.")
+            Step(2, "Tap your device below", "It's usually the one at the top.")
             Spacer(Modifier.height(28.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)) {
@@ -118,19 +118,19 @@ fun PairContent(
             P2FCard(padding = 0.dp) {
                 when {
                     !bluetoothOn -> RowItem(
-                        "Bluetooth is off", subtitle = "Turn it on to look for your wristband",
+                        "Bluetooth is off", subtitle = "Turn it on to look for your device",
                         onClick = onTurnOnBluetooth, trailing = { Chevron() }
                     )
                     sorted.isEmpty() -> RowItem(
-                        "Looking for wristbands…",
-                        subtitle = error ?: "Keep the band close to the phone",
+                        "Looking for devices…",
+                        subtitle = error ?: "Keep the device close to the phone",
                         titleColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     else -> sorted.forEachIndexed { i, d ->
                         if (i > 0) GroupDivider(inset = 68.dp)
                         RowItem(
                             title = d.name ?: "Unnamed device",
-                            subtitle = if (d.isPush2find) "Push2find wristband" else d.address,
+                            subtitle = if (d.isPush2find) "Push2find device" else d.address,
                             onClick = { onPick(d) },
                             leading = { DeviceMark(d.isPush2find) },
                             trailing = { SignalBars(d.rssi) }
@@ -165,23 +165,28 @@ private fun Step(n: Int, title: String, body: String) {
     }
 }
 
-/** A wristband seen from above, its button pulsing as if held down. */
+/** A generic one-button device, its button pulsing as if held down. */
 @Composable
 private fun HoldIllustration() {
     val t = rememberInfiniteTransition(label = "hold")
     val p by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "p")
-    val strap = MaterialTheme.colorScheme.onSurface
+    val body = MaterialTheme.colorScheme.onSurface
     val face = MaterialTheme.colorScheme.surface
-    Canvas(Modifier.size(width = 260.dp, height = 150.dp)) {
+    Canvas(Modifier.size(150.dp)) {
         val c = Offset(size.width / 2, size.height / 2)
-        val strapH = size.height * 0.34f
-        drawRoundRect(strap, Offset(0f, c.y - strapH / 2), Size(size.width, strapH), CornerRadius(strapH / 2))
-        val faceR = size.height * 0.40f
-        drawCircle(strap, faceR + 6.dp.toPx(), c)
-        drawCircle(face, faceR, c)
-        val btn = faceR * 0.46f
-        // ripple
-        drawCircle(Signal.copy(alpha = 0.35f * (1f - p)), btn + faceR * 0.5f * p, c, style = Stroke(3.dp.toPx()))
+        val side = size.minDimension * 0.80f
+        val tl = Offset(c.x - side / 2, c.y - side / 2)
+        drawRoundRect(body, tl, Size(side, side), CornerRadius(side * 0.28f))
+        val inset = 7.dp.toPx()
+        drawRoundRect(
+            face, Offset(tl.x + inset, tl.y + inset), Size(side - inset * 2, side - inset * 2),
+            CornerRadius(side * 0.28f - inset)
+        )
+        // status light
+        drawCircle(Signal.copy(alpha = if (p < 0.5f) 1f else 0.25f), radius = 3.5.dp.toPx(),
+            center = Offset(c.x, tl.y + inset + side * 0.12f))
+        val btn = side * 0.22f
+        drawCircle(Signal.copy(alpha = 0.35f * (1f - p)), btn + side * 0.16f * p, c, style = Stroke(3.dp.toPx()))
         drawCircle(Signal, btn, c)
     }
 }
@@ -207,7 +212,7 @@ private fun DeviceMark(isPush2find: Boolean) {
     }
 }
 
-/** Four bars: helps the user pick the band that is right next to them. */
+/** Four bars: helps the user pick the device that is right next to them. */
 @Composable
 fun SignalBars(rssi: Int) {
     val bars = when {

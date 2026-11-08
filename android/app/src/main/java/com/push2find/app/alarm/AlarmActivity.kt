@@ -81,7 +81,7 @@ fun AlarmScreen(onStop: () -> Unit) {
         Text("FOUND IT?", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelSmall.copy(fontSize = 13.sp))
         Spacer(Modifier.height(10.dp))
         Text(
-            "Your wristband is\nlooking for this phone", color = Color.White, textAlign = TextAlign.Center,
+            "Your device is\nlooking for this phone", color = Color.White, textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineSmall.copy(fontSize = 30.sp, lineHeight = 36.sp)
         )
         Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -104,7 +104,7 @@ fun AlarmScreen(onStop: () -> Unit) {
             }
         }
         Text(
-            "or press the wristband button again",
+            "or press the device button again",
             color = Color.White.copy(alpha = 0.85f), style = MaterialTheme.typography.bodyLarge
         )
         Spacer(Modifier.height(24.dp))

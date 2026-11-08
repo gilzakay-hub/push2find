@@ -118,11 +118,11 @@ class FinderService : LifecycleService() {
     }
 
     private fun statusText(state: LinkState, battery: Int?): String = when (state) {
-        LinkState.CONNECTED -> "Wristband connected" + (battery?.let { " · battery $it%" } ?: "")
-        LinkState.CONNECTING -> "Connecting to wristband…"
-        LinkState.SEARCHING -> "Waiting for wristband to come in range"
+        LinkState.CONNECTED -> "Device connected" + (battery?.let { " · battery $it%" } ?: "")
+        LinkState.CONNECTING -> "Connecting to device…"
+        LinkState.SEARCHING -> "Waiting for device to come in range"
         LinkState.BLUETOOTH_OFF -> "Bluetooth is off"
-        LinkState.NOT_PAIRED -> "No wristband paired"
+        LinkState.NOT_PAIRED -> "No device paired"
     }
 }
 

@@ -10,7 +10,7 @@ struct PairingView: View {
     var body: some View {
         List {
             Section {
-                Text("Hold the wristband button for 3 seconds until the light blinks, then tap it below.")
+                Text("Hold the device button for 3 seconds until the light blinks, then tap it below.")
                     .foregroundStyle(.secondary)
             }
 
@@ -22,7 +22,7 @@ struct PairingView: View {
                 } else if ble.discovered.isEmpty {
                     HStack(spacing: 10) {
                         ProgressView()
-                        Text("Looking for wristbands nearby…")
+                        Text("Looking for devices nearby…")
                     }
                 }
                 ForEach(ble.discovered) { band in
@@ -52,7 +52,7 @@ struct PairingView: View {
                 Text("For testing with a prototype that doesn't advertise the Push2find service yet.")
             }
         }
-        .navigationTitle("Pair wristband")
+        .navigationTitle("Pair device")
         .onAppear { ble.startPairingScan(showAll: showAll) }
         .onDisappear { ble.stopScan() }
         .onChange(of: showAll) { ble.startPairingScan(showAll: $0) }
