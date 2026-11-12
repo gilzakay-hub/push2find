@@ -13,6 +13,7 @@ targets:
   Push2find:
     type: application
     platform: iOS
+    scheme: {}
     sources:
       - path: Push2find
         excludes:
